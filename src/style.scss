@@ -1,0 +1,24 @@
+body {
+  padding: 0;
+  margin: 0;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  text-align: center;
+  font-family: sans-serif;
+  font-weight: 300;
+}
+
+.navbar {
+  top: 0;
+  width: 100%;
+}
+
+.intro {
+  background-color: rgb(0, 188, 212);
+  min-height: 250px;
+  padding-top: 100px;
+  color: #fff;
+  &-title { font-size: 30px; }
+  &-subtitle { font-size: 15px; }
+}

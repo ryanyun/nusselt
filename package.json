@@ -1,0 +1,41 @@
+{
+  "name": "nusselt",
+  "version": "1.0.0",
+  "description": "Nusselt Number Calculator for Heat Transfer Final Project",
+  "main": "index.js",
+  "scripts": {
+    "serve": "open http://localhost:8080/webpack-dev-server/ && webpack-dev-server --progress --colors --watch",
+    "build": "webpack --progress --colors"
+  },
+  "author": "Ryan Yun",
+  "license": "MIT",
+  "dependencies": {
+    "events": "^1.1.0",
+    "flux": "^2.1.1",
+    "history": "^1.17.0",
+    "material-ui": "^0.14.2",
+    "react": "^0.14.6",
+    "react-dom": "^0.14.5"
+  },
+  "devDependencies": {
+    "autoprefixer-loader": "^3.1.0",
+    "babel-core": "^6.3.26",
+    "babel-loader": "^6.2.0",
+    "babel-preset-es2015": "^6.3.13",
+    "babel-preset-react": "^6.3.13",
+    "clean-webpack-plugin": "^0.1.6",
+    "css-loader": "^0.23.1",
+    "file-loader": "^0.8.5",
+    "install": "^0.4.1",
+    "jshint": "^2.8.0",
+    "jshint-loader": "^0.8.3",
+    "node-sass": "^3.4.2",
+    "npm": "^3.5.2",
+    "sass-loader": "^3.1.2",
+    "style-loader": "^0.13.0",
+    "url-loader": "^0.5.7",
+    "webpack": "^1.12.9",
+    "webpack-dev-middleware": "^1.4.0",
+    "webpack-dev-server": "^1.14.0"
+  }
+}
