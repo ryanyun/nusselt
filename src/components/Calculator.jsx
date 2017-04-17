@@ -2,6 +2,8 @@
 import React from 'react';
 import Tabs from 'material-ui/lib/tabs/tabs';
 import Tab from 'material-ui/lib/tabs/tab';
+import SelectField from 'material-ui/lib/SelectField';
+import MenuItem from 'material-ui/lib/menus/menu-item';
 
 // Actions
 import CalculatorActions from '../actions/CalculatorActions.js';
@@ -28,21 +30,35 @@ export default class Calculator extends React.Component {
     this.setState({});
   }
 
+  renderExternalForm() {
+    return (
+      <div className="calculator-flowForm">
+        <SelectField floatingLabelText="Convection Type">
+          <MenuItem value="free" primaryText="Free"></MenuItem>
+          <MenuItem value="forced" primaryText="Forced"></MenuItem>
+        </SelectField><br />
+        <SelectField floatingLabelText="Geometry">
+          <MenuItem value="plate" primaryText="Plate"></MenuItem>
+          <MenuItem value="cylinder" primaryText="Cylinder"></MenuItem>
+          <MenuItem value="sphere" primaryText="Sphere"></MenuItem>
+        </SelectField>
+      </div>
+    )
+  }
+  
+  renderInternalForm() {
+    return (
+      <div className="calculator-flowForm">
+      </div>
+    )
+  }
+
   render() {
     return (
       <div className="calculator">
-        <p>Start by selecting a flow type</p>
         <Tabs>
-          <Tab label="External">
-            <div>
-              <p>Here is external flow</p>
-            </div>
-          </Tab>
-          <Tab label="Internal">
-            <div>
-              <p>Here is internal flow</p>
-            </div>
-          </Tab>
+          <Tab label="External Flow">{this.renderExternalForm()}</Tab>
+          <Tab label="Internal Flow">{this.renderInternalForm()}</Tab>
         </Tabs>
       </div>
     );

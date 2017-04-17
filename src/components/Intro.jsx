@@ -11,8 +11,8 @@ export default class Intro extends React.Component {
   render() {
     return (
       <div className="intro">
-        <p className="intro-title">Nusselt Number Calculator</p>
-        <p className="intro-subtitle">insert intro text here</p>
+        <h1 className="intro-title">Nusselt Number Calculator</h1>
+        <h2 className="intro-subtitle">This is a nusselt number calculator - exciting!</h2>
       </div>
     );
   }
