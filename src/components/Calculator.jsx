@@ -42,6 +42,11 @@ export default class Calculator extends React.Component {
     return (p.convection == "free" && (p.geometry == "plate" || p.geometry == "cylinder"));
   }
 
+  isUniform() {
+    let p = this.state.parameters;
+    return (p.convection == "free" && p.geometry == "plate");
+  }
+
   updateFlow(v) {
     this.setState({
       flowType: v,
@@ -52,6 +57,9 @@ export default class Calculator extends React.Component {
   updateParameters(k, v) {
     if (this.isOrientable() && (v == "forced" || v == "sphere")) {
       delete this.state.parameters.orientation;
+    };
+    if (this.isUniform() && ((v == "forced") || (v == "sphere" || v == "cylinder"))) {
+      delete this.state.parameters.uniform;
     };
     var newParameters = _.extend({}, this.state.parameters);
     newParameters[k] = v;
@@ -68,7 +76,20 @@ export default class Calculator extends React.Component {
           <SelectField value={this.state.parameters.orientation} onChange={(e, i, v) => {this.updateParameters('orientation', v)}} floatingLabelText="Orientation">
             <MenuItem value="vertical" primaryText="Vertical"></MenuItem>
             <MenuItem value="horizontal" primaryText="Horizontal"></MenuItem>
-          </SelectField>
+          </SelectField><br />
+        </div>
+      )
+    }
+  }
+
+  renderUniform() {
+    if (this.isUniform()) {
+      return (
+        <div>
+          <SelectField value={this.state.parameters.uniform} onChange={(e, i, v) => {this.updateParameters('uniform', v)}} floatingLabelText="Free Plate Uniform Quantity">
+            <MenuItem value="temp" primaryText="Constant Temperature"></MenuItem>
+            <MenuItem value="flux" primaryText="Constant Heat Flux"></MenuItem>
+          </SelectField><br />
         </div>
       )
     }
@@ -87,6 +108,7 @@ export default class Calculator extends React.Component {
           <MenuItem value="sphere" primaryText="Sphere"></MenuItem>
         </SelectField><br />
         {this.renderOrientation()}
+        {this.renderUniform()}
       </div>
     )
   }
@@ -94,6 +116,10 @@ export default class Calculator extends React.Component {
   renderInternalForm() {
     return (
       <div className="calculator-flowForm">
+        <SelectField value={this.state.parameters.uniform} onChange={(e, i, v) => {this.updateParameters('uniform', v)}} floatingLabelText="Uniform Quantity">
+          <MenuItem value="temp" primaryText="Constant Temperature"></MenuItem>
+          <MenuItem value="flux" primaryText="Constant Heat Flux"></MenuItem>
+        </SelectField>
       </div>
     )
   }
@@ -101,7 +127,7 @@ export default class Calculator extends React.Component {
   render() {
     return (
       <div className="calculator">
-        <Tabs value={this.state.flowType} onChange={(v) => {this.updateFlow(v)}}>
+        <Tabs value={this.state.flowType} onChange={(v) => {this.updateFlow(v)}} inkBarStyle={{backgroundColor: "#003366"}}>
           <Tab label="External Flow" value="external">{this.renderExternalForm()}</Tab>
           <Tab label="Internal Flow" value="internal">{this.renderInternalForm()}</Tab>
         </Tabs>
