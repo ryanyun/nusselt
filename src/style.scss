@@ -41,6 +41,12 @@ body {
   min-height: 200px;
   padding-top: 100px;
   color: #fff;
+  margin: 0 auto;
+  width: 750px;
+  @include media-query(768px){
+    padding-top: 50px;
+    width: 90%;
+  }
   &-title {
     font-size: 30px;
     font-weight: 300;
@@ -60,8 +66,12 @@ body {
     @include media-query(768px){ width: 256px; }
   }
   .results {
-    width: 256px;
-    margin: 0 auto;
-    .result { color: $themeColor; }
+    width: 320px;
+    padding: 20px;
+    margin: 20px auto;
+    .result {
+      color: $themeColor;
+      &Unit { font-size: 10px; }
+    }
   }
 }

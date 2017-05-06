@@ -3,6 +3,7 @@ import _ from 'lodash';
 import React from 'react';
 import Tabs from 'material-ui/lib/tabs/tabs';
 import Tab from 'material-ui/lib/tabs/tab';
+import Paper from 'material-ui/lib/paper';
 import SelectField from 'material-ui/lib/SelectField';
 import TextField from 'material-ui/lib/text-field';
 import MenuItem from 'material-ui/lib/menus/menu-item';
@@ -149,18 +150,20 @@ export default class Calculator extends React.Component {
           ff = 0.184 * Math.pow(Re, -0.2);
         }
         Nu = ((ff/8)*(Re-1000)*Pr)/(1+12.7*(Math.pow(ff/8,0.25))*((Math.pow(Pr,2/3))-1));
+      } else if (Re <= 3000 && Re > 0) {
+        return (<p className="error">Your Reynolds Number is {Re.toFixed(2)} &lt; 3000. Please select a uniform quantity below.</p>)
       } else {
-        return (<p className="error">Your Reynolds Number is {Re} &lt; 3000. Please select uniform quantity below.</p>)
+        return (<p className="error">Error: Please try again with different values.</p>)
       }
       h = Nu * fk / fd;
       return (
-        <div className="results">
+        <Paper className="results">
           <p>Reynolds Number: <span className="result">{Re.toFixed(2)}</span></p>
           <p>Prandtl Number: <span className="result">{Pr.toFixed(2)}</span></p>
           <p>Friction Factor: <span className="result">{ff.toFixed(2)}</span></p>
           <p>Nusselt Number: <span className="result">{Nu.toFixed(2)}</span></p>
-          <p>Convection Coefficient: <span className="result">{h.toFixed(2)}</span></p>
-        </div>
+          <p>Convection Coefficient: <span className="result">{h.toFixed(2)}</span> <span className="resultUnit">W/m<sup>2</sup>/K</span></p>
+        </Paper>
       )
     }
   }
