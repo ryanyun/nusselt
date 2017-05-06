@@ -3,6 +3,7 @@ import _ from 'lodash';
 import React from 'react';
 import Tabs from 'material-ui/lib/tabs/tabs';
 import Tab from 'material-ui/lib/tabs/tab';
+import RaisedButton from 'material-ui/lib/raised-button';
 import Paper from 'material-ui/lib/paper';
 import SelectField from 'material-ui/lib/SelectField';
 import TextField from 'material-ui/lib/text-field';
@@ -43,8 +44,7 @@ export default class Calculator extends React.Component {
     let q = this.state.quantities;
     if (this.isOrientable() && (v == "forced" || v == "sphere")) { delete p.orientation; };
     if (this.isUniform() && (v == "forced" || v == "sphere" || v == "cylinder")) { delete p.uniform; };
-    if (k == "convection" && v != p.convection) {
-      delete p.geometry;
+    if (p.convection && k == "convection" && v != p.convection) {
       q = {};
     };
     if (p.geometry && k == "geometry") {  q = {}; };
@@ -57,14 +57,45 @@ export default class Calculator extends React.Component {
     });
   }
 
+  checkQuantities(k, v) {
+    let q = this.state.quantities;
+    if (isNaN(v) && isNaN(q[k])) {
+      this.updateQuantities(k, "");
+    } else if (isNaN(v) && !isNaN(q[k])) {
+      this.updateQuantities(k, q[k]);
+    } else {
+      this.updateQuantities(k, v);
+    }
+  }
+
   updateQuantities(k, v) {
-    var newQuantities = _.extend({}, this.state.quantities);
+    let p = this.state.parameters;
+    let q = this.state.quantities;
+    var newQuantities = _.extend({}, q);
     newQuantities[k] = v;
     this.setState({
       flowType: this.state.flowType,
-      parameters: this.state.parameters,
+      parameters: p,
       quantities: newQuantities
     });
+  }
+
+  clearCalculator() {
+    this.setState({
+      flowType: this.state.flowType,
+      parameters: {},
+      quantities: {}
+    });
+  }
+
+  renderClearCalculator() {
+    if (this.state.flowType) {
+      return (
+        <div className="calculator-flowForm-clear">
+          <RaisedButton label="Clear All" secondary={true} onClick={this.clearCalculator.bind(this)} />
+        </div>
+      )
+    }
   }
 
   renderOrientation() {
@@ -101,46 +132,50 @@ export default class Calculator extends React.Component {
     } else if (this.state.parameters.geometry == "cylinder") {
       return (
         <div>
-          <TextField fullWidth={true} value={this.state.quantities.d} onChange={(e) => {this.updateQuantities('d', e.target.value)}} floatingLabelText="Diameter" hintText="m" />
-          <TextField fullWidth={true} value={this.state.quantities.mu} onChange={(e) => {this.updateQuantities('mu', e.target.value)}} floatingLabelText="Dynamic Viscosity" hintText="kg/s/m" />
+          <TextField fullWidth={true} value={this.state.quantities.d} onChange={(e) => {this.checkQuantities('d', e.target.value)}} floatingLabelText="Diameter" hintText="m" />
+          <TextField fullWidth={true} value={this.state.quantities.mu} onChange={(e) => {this.checkQuantities('mu', e.target.value)}} floatingLabelText="Fluid Dynamic Viscosity" hintText="kg/s/m" />
         </div>
       )
     } else if (this.state.parameters.geometry == "sphere") {
       return (
         <div>
-          <TextField fullWidth={true} value={this.state.quantities.d} onChange={(e) => {this.updateQuantities('d', e.target.value)}} floatingLabelText="Diameter" hintText="m" />
-          <TextField fullWidth={true} value={this.state.quantities.kv} onChange={(e) => {this.updateQuantities('kv', e.target.value)}} floatingLabelText="Kinematic Viscosity" hintText="m^2/s" />
+          <TextField fullWidth={true} value={this.state.quantities.d} onChange={(e) => {this.checkQuantities('d', e.target.value)}} floatingLabelText="Diameter" hintText="m" />
+          <TextField fullWidth={true} value={this.state.quantities.kv} onChange={(e) => {this.checkQuantities('kv', e.target.value)}} floatingLabelText="Fluid Kinematic Viscosity" hintText="m^2/s" />
         </div>
       )
     }
   }
 
   renderFreeForm() {
-    if (this.state.parameters.convection == "free") {
+    let p = this.state.parameters;
+    let q = this.state.quantities;
+    if (p.convection == "free" && p.geometry) {
       return (
         <div>
-          <TextField fullWidth={true} value={this.state.quantities.rho} onChange={(e) => {this.updateQuantities('rho', e.target.value)}} floatingLabelText="Density" hintText="kg/m^3" />
-          <TextField fullWidth={true} value={this.state.quantities.d} onChange={(e) => {this.updateQuantities('d', e.target.value)}} floatingLabelText="Diameter" hintText="m" />
-          <TextField fullWidth={true} value={this.state.quantities.mu} onChange={(e) => {this.updateQuantities('mu', e.target.value)}} floatingLabelText="Dynamic Viscosity" hintText="kg/s/m" />
-          <TextField fullWidth={true} value={this.state.quantities.cp} onChange={(e) => {this.updateQuantities('cp', e.target.value)}} floatingLabelText="Specific Heat Capacity" hintText="J/kg/K" />
-          <TextField fullWidth={true} value={this.state.quantities.k} onChange={(e) => {this.updateQuantities('k', e.target.value)}} floatingLabelText="Thermal Conductivity" hintText="W/m/K" />
-          <TextField fullWidth={true} value={this.state.quantities.beta} onChange={(e) => {this.updateQuantities('beta', e.target.value)}} floatingLabelText="Coefficient of Thermal Expansion" hintText="1/K" />
-          <TextField fullWidth={true} value={this.state.quantities.tinf} onChange={(e) => {this.updateQuantities('tinf', e.target.value)}} floatingLabelText="Ambient Temperature" hintText="K" />
-          <TextField fullWidth={true} value={this.state.quantities.ts} onChange={(e) => {this.updateQuantities('ts', e.target.value)}} floatingLabelText="Outer Surface Temperature" hintText="K" />
+          <TextField fullWidth={true} value={q.d} onChange={(e) => {this.checkQuantities('d', e.target.value)}} floatingLabelText="Diameter" hintText="m" />
+          <TextField fullWidth={true} value={q.rho} onChange={(e) => {this.checkQuantities('rho', e.target.value)}} floatingLabelText="Fluid Density" hintText="kg/m^3" />
+          <TextField fullWidth={true} value={q.mu} onChange={(e) => {this.checkQuantities('mu', e.target.value)}} floatingLabelText="Fluid Dynamic Viscosity" hintText="kg/s/m" />
+          <TextField fullWidth={true} value={q.cp} onChange={(e) => {this.checkQuantities('cp', e.target.value)}} floatingLabelText="Fluid Specific Heat Capacity" hintText="J/kg/K" />
+          <TextField fullWidth={true} value={q.k} onChange={(e) => {this.checkQuantities('k', e.target.value)}} floatingLabelText="Fluid Thermal Conductivity" hintText="W/m/K" />
+          <TextField fullWidth={true} value={q.beta} onChange={(e) => {this.checkQuantities('beta', e.target.value)}} floatingLabelText="Fluid Coefficient of Thermal Expansion" hintText="1/K" />
+          <TextField fullWidth={true} value={q.tinf} onChange={(e) => {this.checkQuantities('tinf', e.target.value)}} floatingLabelText="Ambient Temperature" hintText="K" />
+          <TextField fullWidth={true} value={q.ts} onChange={(e) => {this.checkQuantities('ts', e.target.value)}} floatingLabelText="Outer Surface Temperature" hintText="K" />
         </div>
       )
     }
   }
 
   renderForcedForm() {
-    if (this.state.parameters.convection == "forced") {
+    let p = this.state.parameters;
+    let q = this.state.quantities;
+    if (p.convection == "forced" && p.geometry) {
       return (
         <div>
-          <TextField fullWidth={true} value={this.state.quantities.rho} onChange={(e) => {this.updateQuantities('rho', e.target.value)}} floatingLabelText="Density" hintText="kg/m^3" />
-          <TextField fullWidth={true} value={this.state.quantities.v} onChange={(e) => {this.updateQuantities('v', e.target.value)}} floatingLabelText="Fluid Velocity" hintText="m/s" />
           {this.renderGeometrySpecificParameters()}
-          <TextField fullWidth={true} value={this.state.quantities.cp} onChange={(e) => {this.updateQuantities('cp', e.target.value)}} floatingLabelText="Specific Heat Capacity" hintText="J/kg/K" />
-          <TextField fullWidth={true} value={this.state.quantities.k} onChange={(e) => {this.updateQuantities('k', e.target.value)}} floatingLabelText="Thermal Conductivity" hintText="W/m/K" />
+          <TextField fullWidth={true} value={q.rho} onChange={(e) => {this.checkQuantities('rho', e.target.value)}} floatingLabelText="Fluid Density" hintText="kg/m^3" />
+          <TextField fullWidth={true} value={q.v} onChange={(e) => {this.checkQuantities('v', e.target.value)}} floatingLabelText="Fluid Velocity" hintText="m/s" />
+          <TextField fullWidth={true} value={q.cp} onChange={(e) => {this.checkQuantities('cp', e.target.value)}} floatingLabelText="Fluid Specific Heat Capacity" hintText="J/kg/K" />
+          <TextField fullWidth={true} value={q.k} onChange={(e) => {this.checkQuantities('k', e.target.value)}} floatingLabelText="Fluid Thermal Conductivity" hintText="W/m/K" />
         </div>
       )
     }
@@ -321,6 +356,7 @@ export default class Calculator extends React.Component {
         {this.renderUniform()}
         {this.renderFreeForm()}
         {this.renderForcedForm()}
+        {this.renderClearCalculator()}
       </div>
     )
   }
@@ -329,13 +365,14 @@ export default class Calculator extends React.Component {
     return (
       <div className="calculator-flowForm">
         {this.renderInternalResults()}
-        <TextField fullWidth={true} value={this.state.quantities.rho} onChange={(e) => {this.updateQuantities('rho', e.target.value)}} floatingLabelText="Density" hintText="kg/m^3" />
-        <TextField fullWidth={true} value={this.state.quantities.v} onChange={(e) => {this.updateQuantities('v', e.target.value)}} floatingLabelText="Fluid Velocity" hintText="m/s" />
-        <TextField fullWidth={true} value={this.state.quantities.d} onChange={(e) => {this.updateQuantities('d', e.target.value)}} floatingLabelText="Diameter" hintText="m" />
-        <TextField fullWidth={true} value={this.state.quantities.mu} onChange={(e) => {this.updateQuantities('mu', e.target.value)}} floatingLabelText="Dynamic Viscosity" hintText="kg/s/m" />
-        <TextField fullWidth={true} value={this.state.quantities.cp} onChange={(e) => {this.updateQuantities('cp', e.target.value)}} floatingLabelText="Specific Heat Capacity" hintText="J/kg/K" />
-        <TextField fullWidth={true} value={this.state.quantities.k} onChange={(e) => {this.updateQuantities('k', e.target.value)}} floatingLabelText="Thermal Conductivity" hintText="W/m/K" />
+        <TextField fullWidth={true} value={this.state.quantities.d} onChange={(e) => {this.checkQuantities('d', e.target.value)}} floatingLabelText="Cylinder Diameter" hintText="m" />
+        <TextField fullWidth={true} value={this.state.quantities.rho} onChange={(e) => {this.checkQuantities('rho', e.target.value)}} floatingLabelText="Fluid Density" hintText="kg/m^3" />
+        <TextField fullWidth={true} value={this.state.quantities.v} onChange={(e) => {this.checkQuantities('v', e.target.value)}} floatingLabelText="Fluid Velocity" hintText="m/s" />
+        <TextField fullWidth={true} value={this.state.quantities.mu} onChange={(e) => {this.checkQuantities('mu', e.target.value)}} floatingLabelText="Fluid Dynamic Viscosity" hintText="kg/s/m" />
+        <TextField fullWidth={true} value={this.state.quantities.cp} onChange={(e) => {this.checkQuantities('cp', e.target.value)}} floatingLabelText="Fluid Specific Heat Capacity" hintText="J/kg/K" />
+        <TextField fullWidth={true} value={this.state.quantities.k} onChange={(e) => {this.checkQuantities('k', e.target.value)}} floatingLabelText="Fluid Thermal Conductivity" hintText="W/m/K" />
         {this.renderLaminarUniformField()}
+        {this.renderClearCalculator()}
       </div>
     )
   }

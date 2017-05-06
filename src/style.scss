@@ -68,6 +68,10 @@ body {
     margin: 0 auto;
     width: 500px;
     @include media-query(768px){ width: 256px; }
+    &-clear {
+      float: right;
+      margin: 20px 0;
+    }
   }
   .results {
     width: 320px;
