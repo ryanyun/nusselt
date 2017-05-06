@@ -39,13 +39,15 @@ export default class Calculator extends React.Component {
   }
 
   updateParameters(k, v) {
-    if (this.isOrientable() && (v == "forced" || v == "sphere")) {
-      delete this.state.parameters.orientation;
+    let p = this.state.parameters;
+    let q = this.state.quantities;
+    if (this.isOrientable() && (v == "forced" || v == "sphere")) { delete p.orientation; };
+    if (this.isUniform() && (v == "forced" || v == "sphere" || v == "cylinder")) { delete p.uniform; };
+    if (p.geometry && k == "geometry") {
+      if (q.mu) { delete q.mu; };
+      if (q.kv) { delete q.kv; };
     };
-    if (this.isUniform() && (v == "forced" || v == "sphere" || v == "cylinder")) {
-      delete this.state.parameters.uniform;
-    };
-    var newParameters = _.extend({}, this.state.parameters);
+    var newParameters = _.extend({}, p);
     newParameters[k] = v;
     this.setState({
       flowType: this.state.flowType,
@@ -81,7 +83,7 @@ export default class Calculator extends React.Component {
     if (this.isUniform()) {
       return (
         <div>
-          <SelectField fullWidth={true} value={this.state.parameters.uniform} onChange={(e, i, v) => {this.updateParameters('uniform', v)}} floatingLabelText="Free Plate Uniform Quantity">
+          <SelectField fullWidth={true} value={this.state.parameters.uniform} onChange={(e, i, v) => {this.updateParameters('uniform', v)}} floatingLabelText="Uniform Quantity">
             <MenuItem value="temp" primaryText="Constant Temperature"></MenuItem>
             <MenuItem value="flux" primaryText="Constant Heat Flux"></MenuItem>
           </SelectField><br />
@@ -90,26 +92,112 @@ export default class Calculator extends React.Component {
     }
   }
 
+  renderGeometrySpecificParameters() {
+    if (this.state.parameters.geometry == "plate") {
+      return (
+        <div></div>
+      )
+    } else if (this.state.parameters.geometry == "cylinder") {
+      return (
+        <div>
+          <TextField fullWidth={true} value={this.state.quantities.d} onChange={(e) => {this.updateQuantities('d', e.target.value)}} floatingLabelText="Diameter" hintText="m" />
+          <TextField fullWidth={true} value={this.state.quantities.mu} onChange={(e) => {this.updateQuantities('mu', e.target.value)}} floatingLabelText="Dynamic Viscosity" hintText="kg/s/m" />
+        </div>
+      )
+    } else if (this.state.parameters.geometry == "sphere") {
+      return (
+        <div>
+          <TextField fullWidth={true} value={this.state.quantities.d} onChange={(e) => {this.updateQuantities('d', e.target.value)}} floatingLabelText="Diameter" hintText="m" />
+          <TextField fullWidth={true} value={this.state.quantities.kv} onChange={(e) => {this.updateQuantities('kv', e.target.value)}} floatingLabelText="Kinematic Viscosity" hintText="m^2/s" />
+        </div>
+      )
+    }
+  }
+
   renderFreeForm() {
-    return (
-      <div>
-        <TextField fullWidth={true} hintText="Hint Text" floatingLabelText="Floating Label Text" />
-      </div>
-    )
+    if (this.state.parameters.convection == "free") {
+      return (
+        <div>
+          <TextField fullWidth={true} value={this.state.quantities.rho} onChange={(e) => {this.updateQuantities('rho', e.target.value)}} floatingLabelText="Density" hintText="kg/m^3" />
+          {this.renderGeometrySpecificParameters()}
+          <TextField fullWidth={true} value={this.state.quantities.cp} onChange={(e) => {this.updateQuantities('cp', e.target.value)}} floatingLabelText="Specific Heat Capacity" hintText="J/kg/K" />
+          <TextField fullWidth={true} value={this.state.quantities.k} onChange={(e) => {this.updateQuantities('k', e.target.value)}} floatingLabelText="Thermal Conductivity" hintText="W/m/K" />
+          <TextField fullWidth={true} value={this.state.quantities.beta} onChange={(e) => {this.updateQuantities('beta', e.target.value)}} floatingLabelText="Coefficient of Thermal Expansion" hintText="1/K" />
+          <TextField fullWidth={true} value={this.state.quantities.tinf} onChange={(e) => {this.updateQuantities('tinf', e.target.value)}} floatingLabelText="Ambient Temperature" hintText="K" />
+          <TextField fullWidth={true} value={this.state.quantities.ts} onChange={(e) => {this.updateQuantities('ts', e.target.value)}} floatingLabelText="Outer Surface Temperature" hintText="K" />
+        </div>
+      )
+    }
   }
 
   renderForcedForm() {
+    if (this.state.parameters.convection == "forced") {
+      return (
+        <div>
+          <TextField fullWidth={true} value={this.state.quantities.rho} onChange={(e) => {this.updateQuantities('rho', e.target.value)}} floatingLabelText="Density" hintText="kg/m^3" />
+          <TextField fullWidth={true} value={this.state.quantities.v} onChange={(e) => {this.updateQuantities('v', e.target.value)}} floatingLabelText="Fluid Velocity" hintText="m/s" />
+          {this.renderGeometrySpecificParameters()}
+          <TextField fullWidth={true} value={this.state.quantities.cp} onChange={(e) => {this.updateQuantities('cp', e.target.value)}} floatingLabelText="Specific Heat Capacity" hintText="J/kg/K" />
+          <TextField fullWidth={true} value={this.state.quantities.k} onChange={(e) => {this.updateQuantities('k', e.target.value)}} floatingLabelText="Thermal Conductivity" hintText="W/m/K" />
+        </div>
+      )
+    }
+  }
+
+  renderExternalFreeResults() {
     return (
-      <div>
-        <TextField fullWidth={true} hintText="Hint Text" floatingLabelText="Floating Label Text" />
-      </div>
+      <div></div>
     )
   }
-  
+
+  renderExternalForcedResults() {
+    let q = this.state.quantities;
+    if (this.state.parameters.convection == "forced" && q.rho && q.k && q.cp && q.d && q.v && (q.mu || q.kv)) {
+      let frho = parseFloat(q.rho);
+      let fk = parseFloat(q.k);
+      let fcp = parseFloat(q.cp);
+      let fd = parseFloat(q.d);
+      let fv = parseFloat(q.v);
+      let Re; let Pr; let n; let C; let Nu; let h; let fmu; let fkv;
+      if (q.mu) { // if geometry is cylinder
+        fmu = parseFloat(q.mu);
+        Re = frho * fv * fd / fmu;
+        Pr = fcp * fmu / fk;
+        if (Re >= 0.4 && Re < 4) {
+          C = 0.989; n = 0.330;
+        } else if (Re >= 4 && Re < 35) {
+          C = 0.911; n = 0.385;
+        } else if (Re >= 35 && Re < 4083) {
+          C = 0.683; n = 0.466;
+        } else if (Re >= 4083 && Re < 40045) {
+          C = 0.193; n = 0.618;
+        } else if (Re >= 40045 && Re < 400000) {
+          C = 0.0266; n = 0.805;
+        } else {
+          return (<p className="error">Error: Please try again with different values.</p>)
+        }
+        Nu = C * Math.pow(Re, n) * Math.pow(Pr, 1/3);
+      } else if (q.kv) { // if geometry is sphere
+        fkv = parseFloat(q.kv);
+        Re = fv * fd / fkv;
+        Pr = fcp * frho / (fk * fkv);
+        Nu = 2 + (0.4 * Math.pow(Re, 0.5) + 0.06 * Math.pow(Re, 2/3)) * Math.pow(Pr, 0.4);
+      }
+      h = Nu * fk / fd;
+      return (
+        <Paper className="results">
+          <p>Reynolds Number: <span className="result">{Re.toFixed(2)}</span></p>
+          <p>Prandtl Number: <span className="result">{Pr.toFixed(2)}</span></p>
+          <p>Nusselt Number: <span className="result">{Nu.toFixed(2)}</span></p>
+          <p>Convection Coefficient: <span className="result">{h.toFixed(2)}</span> <span className="resultUnit">W/m<sup>2</sup>/K</span></p>
+        </Paper>
+      )
+    }
+  }
+
   renderLaminarUniformField() {
     let q = this.state.quantities;
     if (q.rho && q.v && q.d && q.mu && ((q.rho * q.v * q.d / q.mu) < 3000)) {
-      
       return (
         <div>
           <SelectField fullWidth={true} value={this.state.parameters.uniform} onChange={(e, i, v) => {this.updateParameters('uniform', v)}} floatingLabelText="Uniform Quantity">
@@ -171,12 +259,13 @@ export default class Calculator extends React.Component {
   renderExternalForm() {
     return (
       <div className="calculator-flowForm">
+        {this.renderExternalFreeResults()}
+        {this.renderExternalForcedResults()}
         <SelectField fullWidth={true} value={this.state.parameters.convection} onChange={(e, i, v) => {this.updateParameters('convection', v)}} floatingLabelText="Convection Type">
-          <MenuItem value="free" primaryText="Free"></MenuItem>
+          <MenuItem value="free" primaryText="Natural"></MenuItem>
           <MenuItem value="forced" primaryText="Forced"></MenuItem>
         </SelectField><br />
         <SelectField fullWidth={true} value={this.state.parameters.geometry} onChange={(e, i, v) => {this.updateParameters('geometry', v)}} floatingLabelText="Geometry">
-          <MenuItem value="plate" primaryText="Plate"></MenuItem>
           <MenuItem value="cylinder" primaryText="Cylinder"></MenuItem>
           <MenuItem value="sphere" primaryText="Sphere"></MenuItem>
         </SelectField><br />

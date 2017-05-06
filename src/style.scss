@@ -42,17 +42,21 @@ body {
   padding-top: 100px;
   color: #fff;
   margin: 0 auto;
-  width: 750px;
-  @include media-query(768px){
-    padding-top: 50px;
+  width: 60%;
+  @include media-query(425px){
+    padding-top: 75px;
     width: 90%;
   }
   &-title {
     font-size: 30px;
+    @include media-query(768px){ font-size: 25px; }
+    @include media-query(425px){ font-size: 20px; }
     font-weight: 300;
   }
   &-subtitle {
     font-size: 15px;
+    @include media-query(768px){ font-size: 13px; }
+    @include media-query(425px){ font-size: 12px; }
     font-weight: 300;
   }
 }
@@ -67,6 +71,7 @@ body {
   }
   .results {
     width: 320px;
+    @include media-query(768px){ width: 256px; }
     padding: 20px;
     margin: 20px auto;
     .result {
