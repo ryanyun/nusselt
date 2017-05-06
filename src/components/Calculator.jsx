@@ -20,7 +20,7 @@ export default class Calculator extends React.Component {
 
   isOrientable() {
     let p = this.state.parameters;
-    return (p.convection == "free" && (p.geometry == "plate" || p.geometry == "cylinder"));
+    return (p.convection == "free" && p.geometry == "plate");
   }
 
   isUniform() {
@@ -43,16 +43,17 @@ export default class Calculator extends React.Component {
     let q = this.state.quantities;
     if (this.isOrientable() && (v == "forced" || v == "sphere")) { delete p.orientation; };
     if (this.isUniform() && (v == "forced" || v == "sphere" || v == "cylinder")) { delete p.uniform; };
-    if (p.geometry && k == "geometry") {
-      if (q.mu) { delete q.mu; };
-      if (q.kv) { delete q.kv; };
+    if (k == "convection" && v != p.convection) {
+      delete p.geometry;
+      q = {};
     };
+    if (p.geometry && k == "geometry") {  q = {}; };
     var newParameters = _.extend({}, p);
     newParameters[k] = v;
     this.setState({
       flowType: this.state.flowType,
       parameters: newParameters,
-      quantities: this.state.quantities
+      quantities: q
     });
   }
 
@@ -119,7 +120,8 @@ export default class Calculator extends React.Component {
       return (
         <div>
           <TextField fullWidth={true} value={this.state.quantities.rho} onChange={(e) => {this.updateQuantities('rho', e.target.value)}} floatingLabelText="Density" hintText="kg/m^3" />
-          {this.renderGeometrySpecificParameters()}
+          <TextField fullWidth={true} value={this.state.quantities.d} onChange={(e) => {this.updateQuantities('d', e.target.value)}} floatingLabelText="Diameter" hintText="m" />
+          <TextField fullWidth={true} value={this.state.quantities.mu} onChange={(e) => {this.updateQuantities('mu', e.target.value)}} floatingLabelText="Dynamic Viscosity" hintText="kg/s/m" />
           <TextField fullWidth={true} value={this.state.quantities.cp} onChange={(e) => {this.updateQuantities('cp', e.target.value)}} floatingLabelText="Specific Heat Capacity" hintText="J/kg/K" />
           <TextField fullWidth={true} value={this.state.quantities.k} onChange={(e) => {this.updateQuantities('k', e.target.value)}} floatingLabelText="Thermal Conductivity" hintText="W/m/K" />
           <TextField fullWidth={true} value={this.state.quantities.beta} onChange={(e) => {this.updateQuantities('beta', e.target.value)}} floatingLabelText="Coefficient of Thermal Expansion" hintText="1/K" />
@@ -145,9 +147,55 @@ export default class Calculator extends React.Component {
   }
 
   renderExternalFreeResults() {
-    return (
-      <div></div>
-    )
+    let p = this.state.parameters;
+    let q = this.state.quantities;
+    if (this.state.parameters.convection == "free" && q.rho && q.k && q.cp && q.d && q.beta && q.tinf && q.ts && q.mu) {
+      let frho = parseFloat(q.rho);
+      let fk = parseFloat(q.k);
+      let fcp = parseFloat(q.cp);
+      let fd = parseFloat(q.d);
+      let fv = parseFloat(q.v);
+      let fbeta = parseFloat(q.beta);
+      let ftinf = parseFloat(q.tinf);
+      let fts = parseFloat(q.ts);
+      let fmu = parseFloat(q.mu);
+      let Ra; let Pr; let N; let C; let Nu; let h;
+      const $g = 9.81;
+      switch (p.geometry) {
+        case "cylinder":
+          Pr = fcp * fmu / fk;
+          Ra = $g * fbeta * Math.pow(fd, 3) * Pr * (fts - ftinf) / Math.pow(fmu / frho, 2);
+          if (Ra >= -10000000000 && Ra < -100) {
+            C = 0.675; N = 0.058;
+          } else if (Ra >= -100 && Ra < 100) {
+            C = 1.02; N = 0.148;
+          } else if (Ra >= 100 && Ra < 10000) {
+            C = 0.85; N = 0.188;
+          } else if (Ra >= 10000 && Ra < 10000000) {
+            C = 0.48; N = 0.25;
+          } else if (Ra >= 10000000 && Ra < 1000000000000) {
+            C = 0.125; N = 0.333;
+          } else {
+            return (<p className="error">Error: Please try again with different values.</p>)
+          }
+          Nu = C * Math.pow(Ra, N);
+          break;
+        case "sphere":
+          Pr = fcp * fmu / fk;
+          Ra = $g * fbeta * Math.pow(fd, 3) * Pr * (fts - ftinf) / Math.pow(fmu / frho, 2);
+          Nu = 2 + (0.589 * Math.pow(Ra, 0.25)) / Math.pow(1 + Math.pow(0.469/Pr , 9/16), 4/9)
+          break;
+      }
+      h = Nu * fk / fd;
+      return (
+        <Paper className="results">
+          <p>Rayleigh Number: <span className="result">{Ra.toFixed(2)}</span></p>
+          <p>Prandtl Number: <span className="result">{Pr.toFixed(2)}</span></p>
+          <p>Nusselt Number: <span className="result">{Nu.toFixed(2)}</span></p>
+          <p>Convection Coefficient: <span className="result">{h.toFixed(2)}</span> <span className="resultUnit">W/m<sup>2</sup>/K</span></p>
+        </Paper>
+      )
+    }
   }
 
   renderExternalForcedResults() {
@@ -262,7 +310,7 @@ export default class Calculator extends React.Component {
         {this.renderExternalFreeResults()}
         {this.renderExternalForcedResults()}
         <SelectField fullWidth={true} value={this.state.parameters.convection} onChange={(e, i, v) => {this.updateParameters('convection', v)}} floatingLabelText="Convection Type">
-          <MenuItem value="free" primaryText="Natural"></MenuItem>
+          <MenuItem value="free" primaryText="Free"></MenuItem>
           <MenuItem value="forced" primaryText="Forced"></MenuItem>
         </SelectField><br />
         <SelectField fullWidth={true} value={this.state.parameters.geometry} onChange={(e, i, v) => {this.updateParameters('geometry', v)}} floatingLabelText="Geometry">
