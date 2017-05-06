@@ -1,6 +1,6 @@
 {
   "name": "nusselt",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Nusselt Number Calculator for Heat Transfer Final Project",
   "main": "index.js",
   "scripts": {
@@ -11,7 +11,6 @@
   "license": "MIT",
   "dependencies": {
     "events": "^1.1.0",
-    "flux": "^2.1.1",
     "history": "^1.17.0",
     "material-ui": "^0.14.2",
     "react": "^0.14.6",

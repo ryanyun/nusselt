@@ -2,6 +2,8 @@
   @media only screen and (max-width: $media-query){ @content; }
 }
 
+$themeColor: rgb(0, 188, 212);
+
 body {
   padding: 0;
   margin: 0;
@@ -13,23 +15,22 @@ body {
   font-family: 'Roboto', sans-serif;
   a {
     text-decoration: none;
-    color: rgb(0, 188, 212);
-    &.subtleLink { color: #999; }
-    .menuItemLink { color: #000; }
+    color: $themeColor;
+    transition: opacity 0.5s;
+    &:hover { opacity: 0.5; }
   }
-  .landing { background-color: rgb(0, 188, 212); }
-  .footer {
-    width: 100%;
-    padding: 15px 0;
-    font-size: 10px;
-    text-align: center;
-    color: #ccc;
-    position: absolute;
-    bottom: 0;
+  .landing { background-color: $themeColor; }
+  .error {
+    font-size: 12px;
+    color: #ff0000;
   }
 }
 
-.leftNav p { padding: 15px; }
+.leftNav p {
+  padding: 0 25px;
+  text-align: justify;
+  &:last-of-type { padding-bottom: 30px; }
+}
 
 .navbar {
   top: 0;
@@ -55,6 +56,12 @@ body {
   &-flowForm {
     padding: 10px 50px;
     margin: 0 auto;
+    width: 500px;
+    @include media-query(768px){ width: 256px; }
+  }
+  .results {
     width: 256px;
+    margin: 0 auto;
+    .result { color: $themeColor; }
   }
 }
