@@ -22,7 +22,7 @@ export default class Navbar extends React.Component {
   render() {
     return (
       <div>
-        <LeftNav className="leftNav" width={300} openRight={true} open={this.state.leftNavOpen}>
+        <LeftNav className="leftNav" width={300} open={this.state.leftNavOpen}>
           <MenuItem 
 onTouchTap={this.toggleLeftNav.bind(this)} primaryText="CLOSE" style={{textAlign: "right", color: "rgb(0, 188, 212)", fontSize: "12px"}}></MenuItem>
           <p>This nusselt number calculator was developed by <a href="http://ryanyun.nyc" target="_blank">Ryan Yun</a> for Professor <a href="http://cooper.edu/engineering/people/george-w-sidebotham" target="_blank">George Sidebotham</a> at <a href="http://cooper.edu" target="_blank">The Cooper Union</a>.</p>
