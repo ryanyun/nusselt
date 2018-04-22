@@ -1,15 +1,14 @@
 // External Dependencies
 import _ from 'lodash';
-import React from 'react';
-import Tabs from 'material-ui/lib/tabs/tabs';
-import Tab from 'material-ui/lib/tabs/tab';
-import RaisedButton from 'material-ui/lib/raised-button';
-import Paper from 'material-ui/lib/paper';
-import SelectField from 'material-ui/lib/SelectField';
-import TextField from 'material-ui/lib/text-field';
-import MenuItem from 'material-ui/lib/menus/menu-item';
+import React, {Component} from 'react';
+import {Tabs, Tab} from 'material-ui/Tabs'
+import RaisedButton from 'material-ui/RaisedButton';
+import Paper from 'material-ui/Paper';
+import SelectField from 'material-ui/SelectField';
+import TextField from 'material-ui/TextField';
+import MenuItem from 'material-ui/MenuItem';
 
-export default class Calculator extends React.Component {
+export default class Calculator extends Component {
   constructor() {
     super();
     this.state = {

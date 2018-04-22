@@ -10,4 +10,5 @@ import injectTapEventPlugin from 'react-tap-event-plugin';
 // http://stackoverflow.com/a/34015469/988941
 injectTapEventPlugin();
 
+// ReactDOM.render(<Landing />, document.getElementById('root'));
 ReactDOM.render(<Landing />, document.getElementById('root'));

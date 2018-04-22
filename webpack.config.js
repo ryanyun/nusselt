@@ -1,106 +1,61 @@
-const webpack = require('webpack');
 const path = require('path');
-const CleanWebpackPlugin = require('clean-webpack-plugin');
-
-const PATHS = {
-  root: path.join(__dirname),
-  app: path.join(__dirname, 'src'),
-  main: path.join(__dirname, 'src/index.js'),
-  output: path.join(__dirname, 'build')
-};
 
 module.exports = {
-  context: PATHS.app,
-  entry: PATHS.main,
+  context: path.resolve(__dirname, 'src'),
+  mode: 'production',
+  entry: './index.js',
   output: {
-    path: PATHS.output,
-    filename: 'main.js'
+    filename: 'bundle.js',
+    path: path.resolve(__dirname, 'src')
   },
-
   cache: true,
   devtool: false,
   stats: {
     colors: true,
     reasons: true
   },
-
-  devServer: {
-    historyApiFallback: true
-  },
-
   module: {
-    preLoaders: [
-      {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        loader: 'jshint',
-      }
-    ],
-    loaders: [
+    rules: [
       {
         test: /\.(js|jsx)$/,
-        exclude: /node_modules/,
-        loader: 'babel',
-        query: {
-          presets: ['es2015', 'react']
+        exclude: /(node_modules)/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['react', 'es2015']
+          }
         }
       },
       {
         test: /\.html$/,
-        loader: 'file',
-        query: {
-          name: '[name].[ext]'
+        use: {
+          loader: 'file-loader',
+          options: {
+            name: '[path][name].[ext]'
+          }
         }
       },
       {
         test: /\.scss$/,
-        exclude: /node_modules/,
-        loaders: ['style', 'css', 'sass']
+        use: [{
+          loader: "style-loader" // creates style nodes from JS strings
+        }, {
+          loader: "css-loader" // translates CSS into CommonJS
+        }, {
+          loader: "sass-loader" // compiles Sass to CSS
+        }]
       },
       {
-        test: /\.css$/,
-        exclude: /node_modules/,
-        loaders: ['style','css', 'autoprefixer']
-      },
-      {
-        test: /\.(png|jpg|gif|svg)$/,
-        exclude: /node_modules/,
-        loader: 'file',
-        query: {
-          name: 'assets/img/img-[hash:6].[ext]'
-				}
-      },
-      {
-        test: /\.ico$/,
-        exclude: /node_modules/,
-        loader:'file',
-        query: {
-          name: '[name].[ext]'
-        }
-      },
-      {
-        test:   /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-        loader: 'url',
-        query: {
-          limit: 10000,
-          minetype: 'application/font-woff',
-          name: 'assets/fonts/[name].[ext]'
-        }
-      },
-      {
-        test:   /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-        loader: 'url',
-        query: {
-          limit: 8192,
-          name: 'assets/fonts/[name].[ext]'
-        }
+        test: /\.(png|jpg|gif)$/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: '[path][name].[ext]'
+            }  
+          }
+        ]
       }
     ]
-  },
-  plugins: [
-    new CleanWebpackPlugin(['build'], {
-      root: PATHS.root,
-      verbose: true
-    })
-  ]
+  }
 };

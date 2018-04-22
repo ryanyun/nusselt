@@ -1,7 +1,7 @@
 // External Dependencies
-import React from 'react';
+import React, {Component} from 'react';
 
-export default class Intro extends React.Component {
+export default class Intro extends Component {
   constructor() {
     super();
   }
