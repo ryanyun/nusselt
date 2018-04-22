@@ -388,7 +388,7 @@ export default class Calculator extends Component {
   }
 
   renderInternalForm() {
-    const { d, rho, v, mu, cp, k } = this.state.quantites;
+    const { d, rho, v, mu, cp, k } = this.state.quantities;
     return (
       <div className="calculator-flowForm">
         {this.renderInternalResults()}
