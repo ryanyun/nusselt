@@ -1,6 +1,6 @@
 {
   "name": "nusselt",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "Nusselt Number Calculator for Heat Transfer Final Project",
   "main": "index.js",
   "scripts": {

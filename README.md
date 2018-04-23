@@ -6,4 +6,6 @@ Application for calculating [nusselt numbers](https://en.wikipedia.org/wiki/Nuss
 
 ## Background
 
-This application is currently under development for [Professor George Sidebotham](https://cooper.edu/engineering/people/george-w-sidebotham)'s ME342 Heat Transfer course at The Cooper Union.
+This application was developed for [Professor George Sidebotham](https://cooper.edu/engineering/people/george-w-sidebotham)'s ME342 Heat Transfer course at The Cooper Union. Feel free to contribute by opening a PR.
+
+&copy; 2018 Ryan Yun

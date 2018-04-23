@@ -71,6 +71,7 @@ body {
     &-clear {
       float: right;
       margin: 20px 0;
+      & > div > button { background-color: $themeColor !important; }
     }
   }
   .results {
